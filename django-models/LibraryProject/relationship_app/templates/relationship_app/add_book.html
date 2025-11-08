@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,22 +13,26 @@
             padding: 20px;
             background-color: #f5f5f5;
         }
+
         h1 {
             color: #333;
             text-align: center;
         }
+
         form {
             background-color: white;
             padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         label {
             display: block;
             margin-bottom: 5px;
             color: #555;
             font-weight: bold;
         }
+
         input[type="text"],
         select {
             width: 100%;
@@ -37,6 +42,7 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
+
         button {
             width: 100%;
             padding: 12px;
@@ -47,9 +53,11 @@
             cursor: pointer;
             font-size: 16px;
         }
+
         button:hover {
             background-color: #45a049;
         }
+
         .back-link {
             display: block;
             text-align: center;
@@ -57,28 +65,31 @@
             color: #4CAF50;
             text-decoration: none;
         }
+
         .back-link:hover {
             text-decoration: underline;
         }
     </style>
 </head>
+
 <body>
     <h1>Add New Book</h1>
     <form method="post">
         {% csrf_token %}
         <label for="title">Book Title:</label>
         <input type="text" id="title" name="title" required>
-        
+
         <label for="author">Author:</label>
         <select id="author" name="author" required>
             <option value="">Select an author</option>
             {% for author in authors %}
-                <option value="{{ author.id }}">{{ author.name }}</option>
+            <option value="{{ author.id }}">{{ author.name }}</option>
             {% endfor %}
         </select>
-        
+
         <button type="submit">Add Book</button>
     </form>
     <a href="{% url 'list_books' %}" class="back-link">Back to Book List</a>
 </body>
+
 </html>
