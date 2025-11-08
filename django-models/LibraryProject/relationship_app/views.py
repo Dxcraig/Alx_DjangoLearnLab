@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.views.generic.detail import DetailView
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Book
 from .models import Library
 
@@ -80,3 +80,46 @@ def user_login(request):
     but we define it here for URL routing purposes.
     """
     return render(request, 'relationship_app/login.html')
+
+
+# Role-Based Access Control Helper Functions
+
+def is_admin(user):
+    """Check if user has Admin role"""
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
+
+
+def is_librarian(user):
+    """Check if user has Librarian role"""
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Librarian'
+
+
+def is_member(user):
+    """Check if user has Member role"""
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
+
+
+# Role-Based Views
+
+@user_passes_test(is_admin)
+def admin_view(request):
+    """
+    View accessible only to users with Admin role.
+    """
+    return render(request, 'relationship_app/admin_view.html')
+
+
+@user_passes_test(is_librarian)
+def librarian_view(request):
+    """
+    View accessible only to users with Librarian role.
+    """
+    return render(request, 'relationship_app/librarian_view.html')
+
+
+@user_passes_test(is_member)
+def member_view(request):
+    """
+    View accessible only to users with Member role.
+    """
+    return render(request, 'relationship_app/member_view.html')
