@@ -1,11 +1,9 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import permission_required, login_required
 
 from .models import Book
-from .forms import BookForm
-from .models import Book
-from .forms import BookForm
+from .forms import BookForm, ExampleForm
 
 
 @permission_required('bookshelf.can_view', raise_exception=True)
