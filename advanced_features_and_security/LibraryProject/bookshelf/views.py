@@ -11,6 +11,14 @@ def view_book(request, pk):
     return HttpResponse(f"Bookshelf: Viewing book: {book.title}")
 
 
+@permission_required('bookshelf.can_view', raise_exception=True)
+def book_list(request):
+    """Return a plain-text list of books. Protected by `bookshelf.can_view`."""
+    books = Book.objects.all()
+    lines = [f"{b.id}: {b.title} by {b.author} ({b.publication_year})" for b in books]
+    return HttpResponse("\n".join(lines), content_type='text/plain')
+
+
 @permission_required('bookshelf.can_create', raise_exception=True)
 def create_book(request):
     # Minimal demo: use GET params ?title=...&author=...&publication_year=...
