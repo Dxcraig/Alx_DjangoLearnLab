@@ -2,10 +2,10 @@
 {% block content %}
 <h1>Books</h1>
 <ul>
-  {% for book in books %}
+    {% for book in books %}
     <li>{{ book.id }}: {{ book.title|escape }} by {{ book.author|escape }} ({{ book.publication_year }})</li>
-  {% empty %}
+    {% empty %}
     <li>No books available.</li>
-  {% endfor %}
+    {% endfor %}
 </ul>
 {% endblock %}

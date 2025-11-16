@@ -1,16 +1,19 @@
 <!doctype html>
 <html>
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>LibraryProject</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>LibraryProject</title>
 </head>
+
 <body>
-  {% if user.is_authenticated %}
+    {% if user.is_authenticated %}
     <p>Logged in as {{ user.username|escape }}</p>
-  {% else %}
+    {% else %}
     <p>Not logged in</p>
-  {% endif %}
-  {% block content %}{% endblock %}
+    {% endif %}
+    {% block content %}{% endblock %}
 </body>
+
 </html>
