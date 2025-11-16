@@ -9,6 +9,11 @@ SECRET_KEY = 'django-insecure-replaced-for-advanced-features'
 DEBUG = True
 ALLOWED_HOSTS = []
 
+# SECURITY: in production make sure DEBUG=False and set real hosts
+# For local development you can temporarily set DEBUG=True, but keep
+# the secure defaults below to prevent accidental exposure.
+DEBUG = False
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -23,6 +28,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'LibraryProject.middleware.security.SecurityHeadersMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -92,3 +98,19 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Reminder: install Pillow to use ImageField
+
+# Security settings (recommended for production)
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+# Ensure cookies are only sent over HTTPS in production
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+
+# Basic Content Security Policy sources for inline resources.
+# You should adapt these to your deployment (CDNs, analytics, etc.).
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'",)

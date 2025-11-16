@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ book.title|escape }}</h1>
+<p>Author: {{ book.author|escape }}</p>
+<p>Year: {{ book.publication_year }}</p>
+{% endblock %}
