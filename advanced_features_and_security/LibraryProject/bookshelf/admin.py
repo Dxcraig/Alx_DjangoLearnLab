@@ -1,15 +1,22 @@
 from django.contrib import admin
-from django.contrib.auth import get_user_model
-from django.contrib.auth.admin import UserAdmin
+from django.contrib import admin as django_admin
 
-from .models import Book
+from .models import Book, CustomUser
 
-User = get_user_model()
-
+# Import the CustomUserAdmin defined in `accounts.admin` so we can reuse it.
 try:
-    admin.site.register(User, UserAdmin)
-except admin.sites.AlreadyRegistered:
-    # If another app already registered the user admin, skip.
+    from accounts.admin import CustomUserAdmin
+except Exception:
+    CustomUserAdmin = None
+
+if CustomUserAdmin is not None:
+    try:
+        admin.site.register(CustomUser, CustomUserAdmin)
+    except django_admin.sites.AlreadyRegistered:
+        pass
+else:
+    # Fallback: if CustomUserAdmin isn't importable, let the default admin
+    # registration happen elsewhere (e.g. accounts.admin uses get_user_model()).
     pass
 
 
