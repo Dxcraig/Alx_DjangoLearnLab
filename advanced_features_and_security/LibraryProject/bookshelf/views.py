@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import permission_required, login_required
 
 from .models import Book
 from .forms import BookForm, ExampleForm
+from django.contrib import messages
 
 
 @permission_required('bookshelf.can_view', raise_exception=True)
@@ -48,3 +49,21 @@ def delete_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     book.delete()
     return redirect('bookshelf_book_list')
+
+
+def example_form(request):
+    """Render and process the small `ExampleForm` used for demos.
+
+    GET: show empty form
+    POST: validate and show success message with submitted name
+    """
+    if request.method == 'POST':
+        form = ExampleForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data.get('name')
+            messages.success(request, f'Thanks, {name}! Your message was received.')
+            return redirect('bookshelf_example_form')
+    else:
+        form = ExampleForm()
+
+    return render(request, 'bookshelf/example_form.html', {'form': form})
