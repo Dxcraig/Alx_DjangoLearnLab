@@ -114,3 +114,26 @@ SESSION_COOKIE_HTTPONLY = True
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'",)
 CSP_STYLE_SRC = ("'self'",)
+
+# ---- HTTPS / HSTS / secure cookies -------------------------------------
+# Redirect all HTTP traffic to HTTPS. Enable this in production when SSL is
+# terminated at your load balancer or web server (e.g. nginx) and the site is
+# accessible over HTTPS.
+SECURE_SSL_REDIRECT = True
+
+# HTTP Strict Transport Security (HSTS). A long duration (e.g. 1 year) is
+# recommended once you are confident HTTPS is working for all hosts.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+SECURE_HSTS_SECONDS = 31536000  # one year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# If your project sits behind a proxy / load balancer that sets
+# X-Forwarded-Proto, enable this so Django knows the original scheme.
+# Be sure your proxy is trusted; do NOT enable this unless you control the
+# proxy (example shown as comment):
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Note: `ALLOWED_HOSTS` must include your production domain names when
+# DEBUG=False, otherwise Django will raise a DisallowedHost error. For
+# development you can use `ALLOWED_HOSTS = ['localhost', '127.0.0.1']`.
