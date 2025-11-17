@@ -90,8 +90,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'list_books'
 LOGOUT_REDIRECT_URL = 'login'
 LOGIN_URL = 'login'
-# Use custom user model in new `accounts` app
-AUTH_USER_MODEL = 'accounts.CustomUser'
+# Use custom user model in `bookshelf` app (moved from `accounts`)
+AUTH_USER_MODEL = 'bookshelf.CustomUser'
 
 # Media for profile photos
 MEDIA_URL = '/media/'

@@ -1,36 +1,8 @@
-from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.db import models
+"""
+accounts.models: custom user model moved to `bookshelf.models.CustomUser`.
 
-
-class CustomUserManager(BaseUserManager):
-    use_in_migrations = True
-
-    def create_user(self, username, email=None, password=None, date_of_birth=None, **extra_fields):
-        if not username:
-            raise ValueError('The given username must be set')
-        email = self.normalize_email(email)
-        user = self.model(username=username, email=email, date_of_birth=date_of_birth, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, username, email=None, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self.create_user(username, email, password, **extra_fields)
-
-
-class CustomUser(AbstractUser):
-    date_of_birth = models.DateField(null=True, blank=True)
-    profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
-
-    objects = CustomUserManager()
-
-    def __str__(self):
-        return self.username
+The project previously defined `CustomUser` here. It was relocated to
+`bookshelf.models` per the user's request. Keep this file to avoid import
+errors from references to the `accounts` app; remove or rework migrations if
+you need a clean app model migration history.
+"""
