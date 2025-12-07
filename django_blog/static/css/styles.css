@@ -17,7 +17,7 @@ header {
     background-color: #2c3e50;
     color: #ecf0f1;
     padding: 1rem 0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 nav ul {
@@ -75,7 +75,7 @@ footer {
     background: white;
     padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .auth-container h2 {
@@ -91,7 +91,7 @@ footer {
     background: white;
     padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .profile-container h2 {
@@ -326,7 +326,7 @@ footer {
     background: white;
     padding: 40px 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     margin-top: 40px;
 }
 
@@ -374,31 +374,31 @@ footer {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     nav ul li {
         margin: 5px 0;
         text-align: center;
     }
-    
+
     nav ul li.welcome-msg {
         margin-left: 0;
     }
-    
+
     .auth-container,
     .profile-container {
         padding: 20px;
         margin: 20px;
     }
-    
+
     .profile-actions {
         flex-direction: column;
     }
-    
+
     .action-buttons {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .btn {
         width: 100%;
         max-width: 300px;
