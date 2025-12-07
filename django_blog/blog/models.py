@@ -19,3 +19,43 @@ class Post(models.Model):
     
     def __str__(self):
         return self.title
+
+
+class Comment(models.Model):
+    """
+    Comment model for blog posts.
+    
+    Represents a comment on a blog post with content, author, and timestamps.
+    Each comment is associated with a post and a user (author).
+    """
+    post = models.ForeignKey(
+        Post, 
+        on_delete=models.CASCADE, 
+        related_name='comments',
+        help_text='The blog post this comment belongs to'
+    )
+    author = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='comments',
+        help_text='The user who wrote this comment'
+    )
+    content = models.TextField(
+        help_text='The comment text content'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text='The date and time when the comment was created'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        help_text='The date and time when the comment was last updated'
+    )
+    
+    class Meta:
+        ordering = ['created_at']  # Show oldest comments first
+        verbose_name = 'Comment'
+        verbose_name_plural = 'Comments'
+    
+    def __str__(self):
+        return f'Comment by {self.author.username} on {self.post.title}'

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Post
+from .models import Post, Comment
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -133,3 +133,49 @@ class PostForm(forms.ModelForm):
         if not content or not content.strip():
             raise forms.ValidationError('Content cannot be empty.')
         return content.strip()
+
+
+class CommentForm(forms.ModelForm):
+    """
+    Form for creating and updating comments on blog posts.
+    
+    Fields:
+    - content: Comment content (TextField)
+    
+    The post and author fields are automatically set in the view.
+    """
+    content = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Write your comment here...',
+            'aria-label': 'Comment content'
+        }),
+        label='Comment',
+        help_text='Share your thoughts on this post',
+        max_length=1000
+    )
+    
+    class Meta:
+        model = Comment
+        fields = ['content']
+    
+    def clean_content(self):
+        """
+        Validate that the comment content is not empty or just whitespace.
+        Also ensure it meets minimum length requirements.
+        """
+        content = self.cleaned_data.get('content')
+        
+        if not content or not content.strip():
+            raise forms.ValidationError('Comment cannot be empty.')
+        
+        content = content.strip()
+        
+        if len(content) < 3:
+            raise forms.ValidationError('Comment must be at least 3 characters long.')
+        
+        if len(content) > 1000:
+            raise forms.ValidationError('Comment cannot exceed 1000 characters.')
+        
+        return content
