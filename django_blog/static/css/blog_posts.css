@@ -315,19 +315,19 @@
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .post-actions {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .post-detail-container,
     .post-form-container,
     .delete-confirmation-container {
         padding: 20px;
         margin: 20px;
     }
-    
+
     .post-detail-header h1 {
         font-size: 2em;
     }

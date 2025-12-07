@@ -6,55 +6,55 @@
 {% block content %}
 <div class="post-form-container">
     <h2>{{ form_title }}</h2>
-    
+
     {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
         </div>
+        {% endfor %}
+    </div>
     {% endif %}
-    
+
     <form method="post" class="post-form">
         {% csrf_token %}
-        
+
         <!-- Title Field -->
         <div class="form-group">
             <label for="{{ form.title.id_for_label }}">Title:</label>
             {{ form.title }}
             {% if form.title.help_text %}
-                <small class="form-help-text">{{ form.title.help_text }}</small>
+            <small class="form-help-text">{{ form.title.help_text }}</small>
             {% endif %}
             {% if form.title.errors %}
-                <div class="error-message">
-                    {{ form.title.errors }}
-                </div>
+            <div class="error-message">
+                {{ form.title.errors }}
+            </div>
             {% endif %}
         </div>
-        
+
         <!-- Content Field -->
         <div class="form-group">
             <label for="{{ form.content.id_for_label }}">Content:</label>
             {{ form.content }}
             {% if form.content.help_text %}
-                <small class="form-help-text">{{ form.content.help_text }}</small>
+            <small class="form-help-text">{{ form.content.help_text }}</small>
             {% endif %}
             {% if form.content.errors %}
-                <div class="error-message">
-                    {{ form.content.errors }}
-                </div>
+            <div class="error-message">
+                {{ form.content.errors }}
+            </div>
             {% endif %}
         </div>
-        
+
         <!-- Non-field Errors -->
         {% if form.non_field_errors %}
-            <div class="error-message">
-                {{ form.non_field_errors }}
-            </div>
+        <div class="error-message">
+            {{ form.non_field_errors }}
+        </div>
         {% endif %}
-        
+
         <!-- Form Actions -->
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">{{ button_text }}</button>
