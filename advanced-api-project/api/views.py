@@ -6,7 +6,7 @@ on the Book model. Each view is configured with appropriate permissions, filters
 and custom behavior to ensure secure and efficient API operations.
 
 View Classes:
-    - BookListView: List all books with filtering and search capabilities
+    - BookListView: List all books with filtering, searching, and ordering capabilities
     - BookDetailView: Retrieve a single book by ID
     - BookCreateView: Create a new book (authenticated users only)
     - BookUpdateView: Update an existing book (authenticated users only)
@@ -16,58 +16,102 @@ Permissions:
     - Read operations (List, Detail): IsAuthenticatedOrReadOnly
     - Write operations (Create, Update, Delete): IsAuthenticated
 
-Custom Features:
-    - Search functionality on title and author name
-    - Ordering by title and publication_year
+Advanced Query Capabilities:
+    - Filtering: Filter by title, author, and publication_year
+    - Search: Full-text search on title and author name
+    - Ordering: Sort by title and publication_year (ascending/descending)
     - Custom validation through perform_create and perform_update hooks
 """
 
 from django.shortcuts import render
 from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Book
 from .serializers import BookSerializer
 
 
 class BookListView(generics.ListAPIView):
     """
-    API view to retrieve all books.
+    API view to retrieve all books with advanced filtering, searching, and ordering.
     
     Endpoint: GET /api/books/
     
     Permissions:
         - IsAuthenticatedOrReadOnly: Anyone can read, only authenticated users can write
     
-    Features:
-        - Search: Use ?search=<query> to search by title or author name
-        - Ordering: Use ?ordering=<field> to order by title or publication_year
-                   Prefix with '-' for descending order (e.g., ?ordering=-publication_year)
-        - Default ordering: Books are ordered by title
+    Advanced Query Capabilities:
+    
+    1. FILTERING:
+        Filter books by exact matches on specific fields.
+        - Filter by title: ?title=<book_title>
+        - Filter by author ID: ?author=<author_id>
+        - Filter by publication year: ?publication_year=<year>
+        - Combine multiple filters: ?author=1&publication_year=2023
+    
+    2. SEARCHING:
+        Perform text-based searches across multiple fields.
+        - Search in title or author name: ?search=<query>
+        - Searches are case-insensitive and use partial matching
+        - Example: ?search=Django (finds "Django for Beginners", "Advanced Django", etc.)
+    
+    3. ORDERING:
+        Sort results by specified fields.
+        - Order by title: ?ordering=title (ascending)
+        - Order by publication year: ?ordering=publication_year
+        - Reverse order (descending): ?ordering=-publication_year
+        - Multiple ordering: ?ordering=publication_year,title
+        - Default ordering: title (ascending)
     
     Query Parameters:
-        - search (str): Search term for filtering books by title or author name
-        - ordering (str): Field name for ordering results (title, publication_year)
+        - title (str): Exact match filter for book title
+        - author (int): Filter by author ID
+        - publication_year (int): Filter by publication year
+        - search (str): Search term for title or author name (partial matching)
+        - ordering (str): Field name(s) for ordering results (prefix with '-' for descending)
     
     Returns:
-        - 200 OK: List of all books matching the search/filter criteria
+        - 200 OK: Paginated list of books matching the filter/search criteria
     
     Examples:
+        # Get all books
         GET /api/books/
+        
+        # Filter by publication year
+        GET /api/books/?publication_year=2023
+        
+        # Filter by author
+        GET /api/books/?author=1
+        
+        # Search for books about Django
         GET /api/books/?search=Django
+        
+        # Order by publication year (newest first)
         GET /api/books/?ordering=-publication_year
-        GET /api/books/?search=Python&ordering=title
+        
+        # Combine filtering, searching, and ordering
+        GET /api/books/?author=1&search=Python&ordering=-publication_year
+        
+        # Filter by title and order by publication year
+        GET /api/books/?title=Django%20for%20Beginners&ordering=publication_year
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     
-    # Filter backends enable search and ordering functionality
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    # Filter backends enable filtering, search, and ordering functionality
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    
+    # filterset_fields: Fields available for exact match filtering
+    # Users can filter by these fields using query parameters
+    filterset_fields = ['title', 'author', 'publication_year']
     
     # search_fields: Fields to search through when using ?search=<query>
+    # Performs case-insensitive partial matching across these fields
     search_fields = ['title', 'author__name']
     
     # ordering_fields: Fields available for ordering results
+    # Users can sort by these fields using ?ordering=<field>
     ordering_fields = ['title', 'publication_year']
     
     # ordering: Default ordering applied to the queryset
