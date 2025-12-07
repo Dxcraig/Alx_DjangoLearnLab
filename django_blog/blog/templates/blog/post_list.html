@@ -1,0 +1,79 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}Blog Posts - Django Blog{% endblock %}
+
+{% block content %}
+<div class="posts-container">
+    <div class="posts-header">
+        <h2>All Blog Posts</h2>
+        {% if user.is_authenticated %}
+            <a href="{% url 'post-create' %}" class="btn btn-primary">Create New Post</a>
+        {% endif %}
+    </div>
+    
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    {% if posts %}
+        <div class="posts-list">
+            {% for post in posts %}
+                <article class="post-item">
+                    <div class="post-header">
+                        <h3><a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></h3>
+                        <div class="post-meta">
+                            <span class="post-author">By {{ post.author.username }}</span>
+                            <span class="post-date">{{ post.published_date|date:"F d, Y" }}</span>
+                        </div>
+                    </div>
+                    <div class="post-excerpt">
+                        {{ post.content|truncatewords:50 }}
+                    </div>
+                    <div class="post-actions">
+                        <a href="{% url 'post-detail' post.pk %}" class="btn btn-secondary btn-sm">Read More</a>
+                        {% if user == post.author %}
+                            <a href="{% url 'post-update' post.pk %}" class="btn btn-success btn-sm">Edit</a>
+                            <a href="{% url 'post-delete' post.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                        {% endif %}
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1" class="btn btn-secondary">First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary">Previous</a>
+                {% endif %}
+                
+                <span class="page-info">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-secondary">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-secondary">Last</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="no-posts">
+            <p>No blog posts available yet.</p>
+            {% if user.is_authenticated %}
+                <p><a href="{% url 'post-create' %}" class="btn btn-primary">Create the first post!</a></p>
+            {% else %}
+                <p><a href="{% url 'login' %}" class="btn btn-primary">Login to create a post</a></p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

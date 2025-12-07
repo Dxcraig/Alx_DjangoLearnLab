@@ -1,0 +1,64 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }} - Django Blog{% endblock %}
+
+{% block content %}
+<div class="post-detail-container">
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <article class="post-detail">
+        <header class="post-detail-header">
+            <h1>{{ post.title }}</h1>
+            <div class="post-meta">
+                <div class="post-author-info">
+                    <span class="author-label">Author:</span>
+                    <span class="author-name">{{ post.author.username }}</span>
+                </div>
+                <div class="post-date-info">
+                    <span class="date-label">Published:</span>
+                    <span class="date-value">{{ post.published_date|date:"F d, Y \a\t h:i A" }}</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="post-content">
+            {{ post.content|linebreaks }}
+        </div>
+        
+        <footer class="post-detail-footer">
+            <div class="post-actions">
+                <a href="{% url 'posts' %}" class="btn btn-secondary">Back to Posts</a>
+                
+                {% if user == post.author %}
+                    <a href="{% url 'post-update' post.pk %}" class="btn btn-success">Edit Post</a>
+                    <a href="{% url 'post-delete' post.pk %}" class="btn btn-danger">Delete Post</a>
+                {% endif %}
+            </div>
+        </footer>
+    </article>
+    
+    <!-- Author Card -->
+    <aside class="author-card">
+        <h3>About the Author</h3>
+        <div class="author-details">
+            <p><strong>Username:</strong> {{ post.author.username }}</p>
+            {% if post.author.first_name or post.author.last_name %}
+                <p><strong>Name:</strong> {{ post.author.get_full_name }}</p>
+            {% endif %}
+            {% if post.author.email %}
+                <p><strong>Email:</strong> {{ post.author.email }}</p>
+            {% endif %}
+            <p><strong>Posts by this author:</strong> {{ post.author.posts.count }}</p>
+        </div>
+    </aside>
+</div>
+{% endblock %}
