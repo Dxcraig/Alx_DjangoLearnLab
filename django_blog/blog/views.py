@@ -136,11 +136,24 @@ class PostDetailView(DetailView):
     Detail view for displaying a single blog post.
     
     - Shows complete post content including title, content, author, and date
+    - Displays all comments associated with the post
+    - Provides a form for authenticated users to add new comments
     - Accessible to all users (no authentication required)
     """
     model = Post
     template_name = 'blog/post_detail.html'
     context_object_name = 'post'
+    
+    def get_context_data(self, **kwargs):
+        """
+        Add comments and comment form to the context.
+        """
+        context = super().get_context_data(**kwargs)
+        # Get all comments for this post, ordered by creation date
+        context['comments'] = self.object.comments.all().order_by('created_at')
+        # Add comment form for authenticated users
+        context['comment_form'] = CommentForm()
+        return context
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -242,3 +255,124 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         """
         post = self.get_object()
         return self.request.user == post.author
+
+
+# Comment CRUD Views
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    """
+    Create view for adding new comments to blog posts.
+    
+    - Requires user authentication (LoginRequiredMixin)
+    - Automatically sets the author to the logged-in user
+    - Associates the comment with the specified post
+    - Redirects to post detail page on success
+    """
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+    
+    def form_valid(self, form):
+        """
+        Set the author to the current logged-in user and associate with the post.
+        """
+        form.instance.author = self.request.user
+        form.instance.post = get_object_or_404(Post, pk=self.kwargs['pk'])
+        messages.success(self.request, 'Your comment has been added successfully!')
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        """
+        Redirect to the post detail page after successful comment creation.
+        """
+        return reverse_lazy('post-detail', kwargs={'pk': self.kwargs['pk']})
+    
+    def get_context_data(self, **kwargs):
+        """
+        Add the post to the context for display in the template.
+        """
+        context = super().get_context_data(**kwargs)
+        context['post'] = get_object_or_404(Post, pk=self.kwargs['pk'])
+        return context
+
+
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    Update view for editing existing comments.
+    
+    - Requires user authentication (LoginRequiredMixin)
+    - Only the comment author can edit (UserPassesTestMixin)
+    - Redirects to post detail page on success
+    """
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+    
+    def form_valid(self, form):
+        """
+        Add success message on valid form submission.
+        """
+        messages.success(self.request, 'Your comment has been updated successfully!')
+        return super().form_valid(form)
+    
+    def test_func(self):
+        """
+        Test that the current user is the author of the comment.
+        """
+        comment = self.get_object()
+        return self.request.user == comment.author
+    
+    def get_success_url(self):
+        """
+        Redirect to the post detail page after successful update.
+        """
+        return reverse_lazy('post-detail', kwargs={'pk': self.object.post.pk})
+    
+    def get_context_data(self, **kwargs):
+        """
+        Add context data for the template.
+        """
+        context = super().get_context_data(**kwargs)
+        context['post'] = self.object.post
+        context['is_edit'] = True
+        return context
+
+
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    Delete view for removing comments.
+    
+    - Requires user authentication (LoginRequiredMixin)
+    - Only the comment author can delete (UserPassesTestMixin)
+    - Redirects to post detail page on success
+    """
+    model = Comment
+    template_name = 'blog/comment_confirm_delete.html'
+    
+    def delete(self, request, *args, **kwargs):
+        """
+        Add success message on deletion.
+        """
+        messages.success(request, 'Your comment has been deleted successfully!')
+        return super().delete(request, *args, **kwargs)
+    
+    def test_func(self):
+        """
+        Test that the current user is the author of the comment.
+        """
+        comment = self.get_object()
+        return self.request.user == comment.author
+    
+    def get_success_url(self):
+        """
+        Redirect to the post detail page after successful deletion.
+        """
+        return reverse_lazy('post-detail', kwargs={'pk': self.object.post.pk})
+    
+    def get_context_data(self, **kwargs):
+        """
+        Add context data for the template.
+        """
+        context = super().get_context_data(**kwargs)
+        context['post'] = self.object.post
+        return context
