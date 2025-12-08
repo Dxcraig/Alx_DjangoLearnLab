@@ -228,20 +228,20 @@
         align-items: flex-start;
         gap: 8px;
     }
-    
+
     .comment-actions {
         flex-direction: column;
         gap: 8px;
     }
-    
+
     .comment-actions .btn {
         width: 100%;
     }
-    
+
     .comments-section {
         padding: 20px 15px;
     }
-    
+
     .comment-form-container {
         padding: 20px;
         margin: 20px;

@@ -8,12 +8,12 @@
 {% block content %}
 <div class="comment-form-container">
     <h2>{% if is_edit %}Edit Comment{% else %}Add Comment{% endif %}</h2>
-    
+
     <div class="post-reference">
         <p><strong>Post:</strong> <a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></p>
         <p><strong>Author:</strong> {{ post.author.username }}</p>
     </div>
-    
+
     {% if messages %}
     <div class="messages">
         {% for message in messages %}
@@ -23,10 +23,10 @@
         {% endfor %}
     </div>
     {% endif %}
-    
+
     <form method="post" class="comment-form">
         {% csrf_token %}
-        
+
         <div class="form-group">
             <label for="{{ form.content.id_for_label }}">Your Comment:</label>
             {{ form.content }}
@@ -39,13 +39,13 @@
             </div>
             {% endif %}
         </div>
-        
+
         {% if form.non_field_errors %}
         <div class="error-message">
             {{ form.non_field_errors }}
         </div>
         {% endif %}
-        
+
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">
                 {% if is_edit %}Update Comment{% else %}Post Comment{% endif %}
