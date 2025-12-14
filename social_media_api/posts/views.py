@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, filters, status
+from rest_framework import viewsets, permissions, filters, status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -172,3 +172,50 @@ class CommentViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(comments, many=True)
         return Response(serializer.data)
+
+
+class FeedView(generics.ListAPIView):
+    """
+    API endpoint for viewing the user's personalized feed.
+    
+    GET /api/posts/feed/
+    
+    Returns posts from users that the authenticated user follows,
+    ordered by creation date (most recent first).
+    
+    Features:
+    - Paginated results
+    - Only shows posts from followed users
+    - Ordered by most recent first
+    
+    Response:
+    [
+        {
+            "id": int,
+            "author": {
+                "id": int,
+                "username": "string"
+            },
+            "title": "string",
+            "content": "string",
+            "created_at": "datetime",
+            "updated_at": "datetime",
+            "comments_count": int
+        }
+    ]
+    """
+    serializer_class = PostListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['created_at']
+    ordering = ['-created_at']
+    
+    def get_queryset(self):
+        """
+        Return posts from users that the current user follows.
+        """
+        # Get the list of users that the current user follows
+        following_users = self.request.user.following.all()
+        
+        # Return posts from those users, ordered by creation date
+        return Post.objects.filter(author__in=following_users).order_by('-created_at')

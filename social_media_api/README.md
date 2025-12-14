@@ -1,6 +1,6 @@
 # Social Media API
 
-A Django REST Framework-based Social Media API with user authentication, profile management, and follower functionality.
+A Django REST Framework-based Social Media API with user authentication, profile management, posts, comments, and a follow system with personalized feeds.
 
 ## Table of Contents
 - [Features](#features)
@@ -10,6 +10,7 @@ A Django REST Framework-based Social Media API with user authentication, profile
 - [API Endpoints](#api-endpoints)
 - [User Model](#user-model)
 - [Testing with Postman](#testing-with-postman)
+- [Additional Documentation](#additional-documentation)
 
 ## Features
 
@@ -17,8 +18,17 @@ A Django REST Framework-based Social Media API with user authentication, profile
 - **User Registration**: Create new user accounts with email validation
 - **User Login**: Authenticate users and receive authentication tokens
 - **User Profile Management**: View and update user profiles
-- **Custom User Model**: Extended user model with bio, profile picture, and followers
-- **Follower System**: Many-to-many relationship for following other users
+- **Custom User Model**: Extended user model with bio, profile picture, and following/followers
+- **Follow System**: Users can follow/unfollow other users
+- **Personalized Feed**: View posts from users you follow
+- **Posts & Comments**: Create, read, update, and delete posts and comments
+- **Search & Filter**: Search posts by title/content and filter by various criteria
+
+## Additional Documentation
+
+- **[Follow System & Feed Documentation](FOLLOW_SYSTEM_DOCUMENTATION.md)** - Complete guide for the follow system and feed functionality
+- **[Quick Start Guide](QUICKSTART.md)** - Quick reference for getting started
+- **[Postman Collection](Social_Media_API.postman_collection.json)** - Import this into Postman for testing
 
 ## Technology Stack
 
@@ -229,7 +239,7 @@ The `CustomUser` model extends Django's `AbstractUser` with additional fields:
 | password | CharField | Hashed password | Yes |
 | bio | TextField | User biography (max 500 chars) | No |
 | profile_picture | ImageField | Profile picture | No |
-| followers | ManyToManyField | Users who follow this user | No |
+| following | ManyToManyField | Users that this user follows | No |
 | first_name | CharField | User's first name | No |
 | last_name | CharField | User's last name | No |
 | date_joined | DateTimeField | Account creation date | Auto |
@@ -238,6 +248,24 @@ The `CustomUser` model extends Django's `AbstractUser` with additional fields:
 
 - `get_followers_count()`: Returns the number of followers
 - `get_following_count()`: Returns the number of users being followed
+
+### Follow System
+
+The follow system uses a many-to-many relationship:
+- **following**: Represents users that the current user follows
+- **followers**: Reverse relationship showing users who follow the current user
+
+For detailed information about the follow system and feed, see [FOLLOW_SYSTEM_DOCUMENTATION.md](FOLLOW_SYSTEM_DOCUMENTATION.md).
+
+### Quick Reference: Follow Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/accounts/follow/<user_id>/` | POST | Follow a user |
+| `/api/accounts/unfollow/<user_id>/` | POST | Unfollow a user |
+| `/api/accounts/following/` | GET | List users you follow |
+| `/api/accounts/followers/` | GET | List your followers |
+| `/api/posts/feed/` | GET | Get personalized feed from followed users |
 
 ## Testing with Postman
 

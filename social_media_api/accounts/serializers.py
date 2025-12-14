@@ -129,3 +129,16 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         instance.profile_picture = validated_data.get('profile_picture', instance.profile_picture)
         instance.save()
         return instance
+
+
+class UserFollowSerializer(serializers.ModelSerializer):
+    """
+    Serializer for displaying user information in follow context.
+    
+    Shows basic user info for following/followers lists.
+    """
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'bio', 'profile_picture']
+        read_only_fields = ['id', 'username', 'bio', 'profile_picture']
+

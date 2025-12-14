@@ -3,11 +3,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, get_user_model
+from django.shortcuts import get_object_or_404
 from .serializers import (
     UserRegistrationSerializer,
     UserLoginSerializer,
     UserProfileSerializer,
-    UserUpdateSerializer
+    UserUpdateSerializer,
+    UserFollowSerializer
 )
 
 User = get_user_model()
@@ -179,4 +181,132 @@ class UserLogoutView(APIView):
             return Response({
                 'error': 'Something went wrong'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class FollowUserView(generics.GenericAPIView):
+    """
+    API endpoint for following a user.
+    
+    POST /api/accounts/follow/<int:user_id>/
+    
+    Allows authenticated users to follow another user.
+    Users cannot follow themselves.
+    
+    Response:
+    {
+        "message": "You are now following {username}",
+        "user": {
+            "id": int,
+            "username": "string",
+            "bio": "string",
+            "profile_picture": "url"
+        }
+    }
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserFollowSerializer
+    
+    def post(self, request, user_id):
+        # Get the user to follow
+        user_to_follow = get_object_or_404(User, id=user_id)
+        
+        # Check if trying to follow themselves
+        if user_to_follow == request.user:
+            return Response({
+                'error': 'You cannot follow yourself'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if already following
+        if request.user.following.filter(id=user_id).exists():
+            return Response({
+                'error': f'You are already following {user_to_follow.username}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Add to following
+        request.user.following.add(user_to_follow)
+        
+        serializer = self.get_serializer(user_to_follow)
+        return Response({
+            'message': f'You are now following {user_to_follow.username}',
+            'user': serializer.data
+        }, status=status.HTTP_200_OK)
+
+
+class UnfollowUserView(generics.GenericAPIView):
+    """
+    API endpoint for unfollowing a user.
+    
+    POST /api/accounts/unfollow/<int:user_id>/
+    
+    Allows authenticated users to unfollow another user.
+    
+    Response:
+    {
+        "message": "You have unfollowed {username}"
+    }
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, user_id):
+        # Get the user to unfollow
+        user_to_unfollow = get_object_or_404(User, id=user_id)
+        
+        # Check if actually following this user
+        if not request.user.following.filter(id=user_id).exists():
+            return Response({
+                'error': f'You are not following {user_to_unfollow.username}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Remove from following
+        request.user.following.remove(user_to_unfollow)
+        
+        return Response({
+            'message': f'You have unfollowed {user_to_unfollow.username}'
+        }, status=status.HTTP_200_OK)
+
+
+class FollowingListView(generics.ListAPIView):
+    """
+    API endpoint to list users that the authenticated user follows.
+    
+    GET /api/accounts/following/
+    
+    Response:
+    [
+        {
+            "id": int,
+            "username": "string",
+            "bio": "string",
+            "profile_picture": "url"
+        }
+    ]
+    """
+    serializer_class = UserFollowSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        return self.request.user.following.all()
+
+
+class FollowersListView(generics.ListAPIView):
+    """
+    API endpoint to list users who follow the authenticated user.
+    
+    GET /api/accounts/followers/
+    
+    Response:
+    [
+        {
+            "id": int,
+            "username": "string",
+            "bio": "string",
+            "profile_picture": "url"
+        }
+    ]
+    """
+    serializer_class = UserFollowSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        return self.request.user.followers.all()
 
