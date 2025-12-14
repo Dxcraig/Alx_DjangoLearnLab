@@ -60,10 +60,14 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # Extract password to hash it properly
         password = validated_data.pop('password')
         
-        # Create user instance
-        user = User(**validated_data)
-        user.set_password(password)
-        user.save()
+        # Create user using get_user_model().objects.create_user
+        user = get_user_model().objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=password,
+            bio=validated_data.get('bio', ''),
+            profile_picture=validated_data.get('profile_picture', None)
+        )
         
         # Create authentication token
         Token.objects.create(user=user)
