@@ -1,9 +1,10 @@
 # Python
-*.py[cod]
 __pycache__/
+*.py[cod]
+*$py.class
 *.so
-*.egg
-*.egg-info
+.Python
+*.egg-info/
 dist/
 build/
 venv/
@@ -18,6 +19,11 @@ media/
 staticfiles/
 local_settings.py
 
+# Environment
+.env
+.env.local
+.env.*
+
 # IDE
 .vscode/
 .idea/
@@ -29,21 +35,31 @@ local_settings.py
 .DS_Store
 Thumbs.db
 
-# Environment
-.env
-.env.local
+# Git
+.git/
+.gitignore
+.gitattributes
 
 # Testing
 .coverage
 htmlcov/
 .pytest_cache/
+.tox/
 
-# Deployment
+# Documentation
+*.md
+!README.md
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Logs
 logs/
-*.sock
-*.pid
+*.log
 
-# Backup files
+# Backup
 *.sql
 *.dump
 backups/
