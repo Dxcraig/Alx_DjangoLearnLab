@@ -5,14 +5,19 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# SECURITY WARNING: Keep the secret key used in production secret!
+# In production, load this from environment variables or a secure configuration file
 SECRET_KEY = 'django-insecure-replaced-for-advanced-features'
-DEBUG = True
-ALLOWED_HOSTS = []
 
-# SECURITY: in production make sure DEBUG=False and set real hosts
-# For local development you can temporarily set DEBUG=True, but keep
-# the secure defaults below to prevent accidental exposure.
+# SECURITY WARNING: Don't run with debug turned on in production!
+# DEBUG = True exposes sensitive information in error pages
+# Set to False in production to prevent information disclosure
 DEBUG = False
+
+# SECURITY: Define allowed hosts to prevent Host Header attacks
+# In production, set this to your actual domain names
+# Example: ALLOWED_HOSTS = ['example.com', 'www.example.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -99,14 +104,34 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Reminder: install Pillow to use ImageField
 
-# Security settings (recommended for production)
+# ============================================================================
+# SECURITY SETTINGS
+# ============================================================================
+# These settings protect against common web vulnerabilities
+
+# XSS Protection: Enables browser's XSS filtering to prevent cross-site scripting attacks
+# This header instructs the browser to block pages if it detects XSS attacks
 SECURE_BROWSER_XSS_FILTER = True
+
+# Content Type Sniffing Protection: Prevents browsers from MIME-sniffing responses
+# This protects against MIME type confusion attacks
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Clickjacking Protection: Prevents the site from being embedded in frames/iframes
+# 'DENY' prevents any domain from framing the content
+# Alternative: 'SAMEORIGIN' allows only same-origin framing
 X_FRAME_OPTIONS = 'DENY'
 
-# Ensure cookies are only sent over HTTPS in production
+# CSRF Cookie Security: Ensures CSRF tokens are only sent over HTTPS
+# This prevents token interception over insecure connections
 CSRF_COOKIE_SECURE = True
+
+# Session Cookie Security: Forces session cookies to be sent only over HTTPS
+# This prevents session hijacking over insecure connections
 SESSION_COOKIE_SECURE = True
+
+# HTTP-Only Cookies: Prevents JavaScript from accessing session cookies
+# This mitigates XSS attacks that attempt to steal session data
 SESSION_COOKIE_HTTPONLY = True
 
 # Basic Content Security Policy sources for inline resources.

@@ -8,5 +8,6 @@ urlpatterns = [
     path('books/<int:pk>/edit/', views.edit_book, name='bookshelf_edit_book'),
     # delete uses POST; we expose the same URL but views enforce POST
     path('books/<int:pk>/delete/', views.delete_book, name='bookshelf_delete_book'),
+    path('books/search/', views.search_books, name='bookshelf_search_books'),
     path('example/', views.example_form, name='bookshelf_example_form'),
 ]

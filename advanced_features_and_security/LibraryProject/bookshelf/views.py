@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import permission_required, login_required
+from django.db.models import Q
 
 from .models import Book
 from .forms import BookForm, ExampleForm
@@ -56,10 +57,18 @@ def example_form(request):
 
     GET: show empty form
     POST: validate and show success message with submitted name
+    
+    SECURITY NOTE: This view demonstrates secure input handling:
+    - Uses Django forms for automatic input validation and sanitization
+    - Form.is_valid() validates all fields before processing
+    - cleaned_data provides sanitized user input
+    - Messages framework safely escapes output by default
     """
     if request.method == 'POST':
         form = ExampleForm(request.POST)
         if form.is_valid():
+            # Use cleaned_data to access validated and sanitized input
+            # This prevents XSS attacks by ensuring data is properly escaped
             name = form.cleaned_data.get('name')
             messages.success(request, f'Thanks, {name}! Your message was received.')
             return redirect('bookshelf_example_form')
@@ -67,3 +76,55 @@ def example_form(request):
         form = ExampleForm()
 
     return render(request, 'bookshelf/example_form.html', {'form': form})
+
+
+@permission_required('bookshelf.can_view', raise_exception=True)
+def search_books(request):
+    """Search for books by title or author using secure query methods.
+    
+    SECURITY MEASURES IMPLEMENTED:
+    1. SQL Injection Prevention: Uses Django ORM with parameterized queries
+       instead of raw SQL or string formatting
+    2. Input Validation: Validates and sanitizes search query
+    3. XSS Protection: Django templates auto-escape output by default
+    4. Permission Required: Only users with can_view permission can search
+    
+    ANTI-PATTERN (DO NOT USE):
+        # INSECURE: Direct SQL concatenation vulnerable to SQL injection
+        # query = "SELECT * FROM books WHERE title LIKE '%%" + search_query + "%%'"
+        # Book.objects.raw(query)
+    
+    SECURE PATTERN (USED HERE):
+        # Uses Django ORM with Q objects for safe parameterized queries
+        # Django automatically escapes and parameterizes the query
+    """
+    # Get search query from GET parameters
+    search_query = request.GET.get('q', '').strip()
+    
+    # Initialize empty queryset
+    books = Book.objects.none()
+    
+    if search_query:
+        # SECURITY: Input validation - limit query length to prevent abuse
+        if len(search_query) > 100:
+            messages.warning(request, 'Search query too long. Maximum 100 characters.')
+        else:
+            # SECURITY: Use Django ORM with Q objects for safe queries
+            # This prevents SQL injection by using parameterized queries
+            # The icontains lookup is safe and automatically escaped
+            books = Book.objects.filter(
+                Q(title__icontains=search_query) | 
+                Q(author__icontains=search_query)
+            )
+            
+            if not books.exists():
+                messages.info(request, f'No books found matching "{search_query}"')
+    
+    # Pass search query back to template for display
+    # Django templates automatically escape this value to prevent XSS
+    context = {
+        'books': books,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'bookshelf/book_search.html', context)
