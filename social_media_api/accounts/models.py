@@ -9,7 +9,7 @@ class CustomUser(AbstractUser):
     Additional fields:
     - bio: User's biography or description
     - profile_picture: URL or path to user's profile picture
-    - followers: Many-to-many relationship with other users (asymmetric)
+    - following: Many-to-many relationship representing users that this user follows
     """
     bio = models.TextField(max_length=500, blank=True, null=True, help_text="User biography")
     profile_picture = models.ImageField(
@@ -18,12 +18,12 @@ class CustomUser(AbstractUser):
         null=True,
         help_text="User profile picture"
     )
-    followers = models.ManyToManyField(
+    following = models.ManyToManyField(
         'self',
         symmetrical=False,
-        related_name='following',
+        related_name='followers',
         blank=True,
-        help_text="Users who follow this user"
+        help_text="Users that this user follows"
     )
     
     class Meta:
