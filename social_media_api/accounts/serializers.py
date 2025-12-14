@@ -81,12 +81,8 @@ class UserLoginSerializer(serializers.Serializer):
     
     Accepts username and password, returns authentication token.
     """
-    username = serializers.CharField(required=True)
-    password = serializers.CharField(
-        required=True,
-        write_only=True,
-        style={'input_type': 'password'}
-    )
+    username = serializers.CharField()
+    password = serializers.CharField()
     token = serializers.CharField(read_only=True)
     user_id = serializers.IntegerField(read_only=True)
 
