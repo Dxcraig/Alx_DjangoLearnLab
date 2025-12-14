@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import permission_required, login_required
 from django.db.models import Q
 
 from .models import Book
-from .forms import BookForm, ExampleForm
+from .forms import BookForm
+from .forms import ExampleForm
 from django.contrib import messages
 
 

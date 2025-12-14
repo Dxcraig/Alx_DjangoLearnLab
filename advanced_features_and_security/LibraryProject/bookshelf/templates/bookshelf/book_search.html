@@ -7,10 +7,10 @@
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+    <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>
         {{ message }}
-    </li>
-    {% endfor %}
+        </li>
+        {% endfor %}
 </ul>
 {% endif %}
 
@@ -18,34 +18,28 @@
 {# This token ensures the form submission comes from an authenticated source #}
 <form method="get" action="{% url 'bookshelf_search_books' %}">
     <label for="search-query">Search by title or author:</label>
-    <input 
-        type="text" 
-        id="search-query" 
-        name="q" 
-        value="{{ search_query|escape }}" 
-        maxlength="100"
-        placeholder="Enter book title or author"
-    >
+    <input type="text" id="search-query" name="q" value="{{ search_query|escape }}" maxlength="100"
+        placeholder="Enter book title or author">
     <button type="submit">Search</button>
 </form>
 
 <h2>Search Results</h2>
 {% if search_query %}
-    {% if books %}
-    <ul>
-        {% for book in books %}
-        {# SECURITY: Using |escape filter explicitly demonstrates XSS protection #}
-        {# Django auto-escapes by default, but being explicit is good practice #}
-        <li>
-            <strong>{{ book.title|escape }}</strong> 
-            by {{ book.author|escape }} 
-            ({{ book.publication_year }})
-        </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>No books found.</p>
-    {% endif %}
+{% if books %}
+<ul>
+    {% for book in books %}
+    {# SECURITY: Using |escape filter explicitly demonstrates XSS protection #}
+    {# Django auto-escapes by default, but being explicit is good practice #}
+    <li>
+        <strong>{{ book.title|escape }}</strong>
+        by {{ book.author|escape }}
+        ({{ book.publication_year }})
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No books found.</p>
+{% endif %}
 {% else %}
 <p>Enter a search term to find books.</p>
 {% endif %}
