@@ -86,7 +86,7 @@ WSGI_APPLICATION = 'social_media_api.wsgi.application'
 
 # Use PostgreSQL in production, SQLite in development
 if os.environ.get('DATABASE_URL'):
-    # Production database (PostgreSQL)
+    # Production database (PostgreSQL) - using DATABASE_URL
     import dj_database_url
     DATABASES = {
         'default': dj_database_url.config(
@@ -103,6 +103,18 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
+# Alternative production database configuration with explicit credentials:
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('DB_NAME', 'social_media_db'),
+#         'USER': os.environ.get('DB_USER', 'postgres'),
+#         'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+#         'HOST': os.environ.get('DB_HOST', 'localhost'),
+#         'PORT': os.environ.get('DB_PORT', '5432'),
+#     }
+# }
 
 
 # Password validation
