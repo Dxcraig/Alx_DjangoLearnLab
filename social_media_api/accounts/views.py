@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, get_user_model
 from django.shortcuts import get_object_or_404
+from .models import CustomUser
 from .serializers import (
     UserRegistrationSerializer,
     UserLoginSerializer,
@@ -205,7 +206,7 @@ class FollowUserView(generics.GenericAPIView):
     """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserFollowSerializer
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     
     def post(self, request, user_id):
         # Get the user to follow from all users
@@ -247,7 +248,7 @@ class UnfollowUserView(generics.GenericAPIView):
     }
     """
     permission_classes = [permissions.IsAuthenticated]
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     
     def post(self, request, user_id):
         # Get the user to unfollow from all users
