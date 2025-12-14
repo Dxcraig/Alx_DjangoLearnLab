@@ -34,17 +34,18 @@
             <div class="post-excerpt">
                 {{ post.content|truncatewords:50 }}
             </div>
-            
+
             <!-- Display All Tags for this Post -->
             {% if post.tags.all %}
             <div class="post-tags">
                 <span class="tags-label">Tags:</span>
                 {% for post_tag in post.tags.all %}
-                <a href="{% url 'posts-by-tag' post_tag.slug %}" class="tag-link {% if post_tag == tag %}active-tag{% endif %}">{{ post_tag.name }}</a>
+                <a href="{% url 'posts-by-tag' post_tag.slug %}"
+                    class="tag-link {% if post_tag == tag %}active-tag{% endif %}">{{ post_tag.name }}</a>
                 {% endfor %}
             </div>
             {% endif %}
-            
+
             <div class="post-actions">
                 <a href="{% url 'post-detail' post.pk %}" class="btn btn-secondary btn-sm">Read More</a>
                 {% if user == post.author %}

@@ -36,7 +36,7 @@
             <div class="post-excerpt">
                 {{ post.content|truncatewords:50 }}
             </div>
-            
+
             <!-- Display Tags -->
             {% if post.tags.all %}
             <div class="post-tags">
@@ -46,7 +46,7 @@
                 {% endfor %}
             </div>
             {% endif %}
-            
+
             <div class="post-actions">
                 <a href="{% url 'post-detail' post.pk %}" class="btn btn-secondary btn-sm">Read More</a>
                 {% if user == post.author %}
