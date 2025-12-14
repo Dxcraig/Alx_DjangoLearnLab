@@ -91,6 +91,7 @@ class PostForm(forms.ModelForm):
     Fields:
     - title: Post title (max 200 characters)
     - content: Post content (TextField)
+    - tags: Tags for categorizing the post (using django-taggit)
     
     The author field is automatically set in the view and not included in the form.
     """
@@ -114,7 +115,17 @@ class PostForm(forms.ModelForm):
     
     class Meta:
         model = Post
-        fields = ['title', 'content']
+        fields = ['title', 'content', 'tags']
+        widgets = {
+            'tags': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter tags separated by commas (e.g., django, python, web)',
+                'data-role': 'tagsinput'
+            })
+        }
+        help_texts = {
+            'tags': 'Add tags to categorize your post. Separate multiple tags with commas.'
+        }
     
     def clean_title(self):
         """

@@ -5,7 +5,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .forms import CustomUserCreationForm, UserUpdateForm, CommentForm
+from django.db.models import Q
+from taggit.models import Tag
+from .forms import CustomUserCreationForm, UserUpdateForm, CommentForm, PostForm
 from .models import Post, Comment
 
 
@@ -165,7 +167,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     - Redirects to post detail page on success
     """
     model = Post
-    fields = ['title', 'content']
+    form_class = PostForm
     template_name = 'blog/post_form.html'
     success_url = reverse_lazy('posts')
     
@@ -196,7 +198,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     - Redirects to post detail page on success
     """
     model = Post
-    fields = ['title', 'content']
+    form_class = PostForm
     template_name = 'blog/post_form.html'
     
     def form_valid(self, form):
@@ -375,4 +377,66 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         """
         context = super().get_context_data(**kwargs)
         context['post'] = self.object.post
+        return context
+
+
+def search_posts(request):
+    """
+    Search view for finding blog posts based on title, content, or tags.
+    
+    Uses Django's Q objects for complex query lookups to filter posts by:
+    - Title (case-insensitive contains)
+    - Content (case-insensitive contains)
+    - Tags (tag name contains)
+    
+    Accessible via GET parameter 'q' for the search query.
+    """
+    query = request.GET.get('q', '')
+    results = Post.objects.none()
+    
+    if query:
+        # Use Q objects for complex lookups across multiple fields
+        results = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct().order_by('-published_date')
+    
+    context = {
+        'query': query,
+        'results': results,
+        'result_count': results.count()
+    }
+    
+    return render(request, 'blog/search_results.html', context)
+
+
+class PostByTagListView(ListView):
+    """
+    List view for displaying blog posts filtered by a specific tag.
+    
+    - Displays all posts with the specified tag
+    - Ordered by publication date (newest first)
+    - Uses pagination (10 posts per page)
+    - Accessible to all users
+    """
+    model = Post
+    template_name = 'blog/posts_by_tag.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        """
+        Filter posts by the tag slug from the URL.
+        """
+        tag_slug = self.kwargs.get('tag_slug')
+        self.tag = get_object_or_404(Tag, slug=tag_slug)
+        return Post.objects.filter(tags__in=[self.tag]).order_by('-published_date')
+    
+    def get_context_data(self, **kwargs):
+        """
+        Add the current tag to the context.
+        """
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
         return context

@@ -34,6 +34,16 @@
             {{ post.content|linebreaks }}
         </div>
 
+        <!-- Tags Section -->
+        {% if post.tags.all %}
+        <div class="post-tags">
+            <span class="tags-label">Tags:</span>
+            {% for tag in post.tags.all %}
+            <a href="{% url 'posts-by-tag' tag.slug %}" class="tag-link">{{ tag.name }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <footer class="post-detail-footer">
             <div class="post-actions">
                 <a href="{% url 'posts' %}" class="btn btn-secondary">Back to Posts</a>
@@ -59,4 +69,6 @@
             {% endif %}
             <p><strong>Posts by this author:</strong> {{ post.author.posts.count }}</p>
         </div>
-    </aside>NEWCONTENT</div>{% endblock %}
+    </aside>
+</div>
+{% endblock %}
