@@ -1,4 +1,26 @@
+# Social Media API - Requirements
+
+# Core Django packages
 Django>=5.2.7
 djangorestframework>=3.16.1
-Pillow>=12.0.0
 django-filter>=25.2
+
+# Database
+psycopg2-binary>=2.9.9  # PostgreSQL adapter
+dj-database-url>=2.2.0  # Database URL parsing
+
+# Authentication
+django-cors-headers>=4.5.0  # CORS support for frontend
+
+# Static files
+whitenoise>=6.8.2  # Static file serving
+
+# Web server
+gunicorn>=23.0.0  # WSGI HTTP Server
+
+# Image handling
+Pillow>=12.0.0  # Image processing
+
+# Environment variables
+python-decouple>=3.8  # Environment variable management
+python-dotenv>=1.0.1  # .env file support
