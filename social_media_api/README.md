@@ -22,11 +22,14 @@ A Django REST Framework-based Social Media API with user authentication, profile
 - **Follow System**: Users can follow/unfollow other users
 - **Personalized Feed**: View posts from users you follow
 - **Posts & Comments**: Create, read, update, and delete posts and comments
+- **Likes System**: Like and unlike posts with real-time counts
+- **Notifications**: Receive notifications for follows, likes, and comments
 - **Search & Filter**: Search posts by title/content and filter by various criteria
 
 ## Additional Documentation
 
 - **[Follow System & Feed Documentation](FOLLOW_SYSTEM_DOCUMENTATION.md)** - Complete guide for the follow system and feed functionality
+- **[Likes & Notifications Documentation](LIKES_NOTIFICATIONS_DOCUMENTATION.md)** - Complete guide for likes and notifications features
 - **[Quick Start Guide](QUICKSTART.md)** - Quick reference for getting started
 - **[Postman Collection](Social_Media_API.postman_collection.json)** - Import this into Postman for testing
 

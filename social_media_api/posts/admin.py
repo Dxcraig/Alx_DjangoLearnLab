@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, Comment
+from .models import Post, Comment, Like
 
 
 @admin.register(Post)
@@ -7,7 +7,8 @@ class PostAdmin(admin.ModelAdmin):
     """
     Admin interface for Post model.
     """
-    list_display = ['id', 'title', 'author', 'created_at', 'updated_at', 'get_comments_count']
+    list_display = ['id', 'title', 'author', 'created_at', 'updated_at', 
+                    'get_comments_count', 'get_likes_count']
     list_filter = ['created_at', 'updated_at', 'author']
     search_fields = ['title', 'content', 'author__username']
     readonly_fields = ['created_at', 'updated_at']
@@ -18,6 +19,11 @@ class PostAdmin(admin.ModelAdmin):
         """Display comment count in admin list."""
         return obj.get_comments_count()
     get_comments_count.short_description = 'Comments'
+    
+    def get_likes_count(self, obj):
+        """Display like count in admin list."""
+        return obj.get_likes_count()
+    get_likes_count.short_description = 'Likes'
 
 
 @admin.register(Comment)
@@ -36,3 +42,16 @@ class CommentAdmin(admin.ModelAdmin):
         """Display preview of comment content."""
         return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
     content_preview.short_description = 'Content Preview'
+
+
+@admin.register(Like)
+class LikeAdmin(admin.ModelAdmin):
+    """
+    Admin interface for Like model.
+    """
+    list_display = ['id', 'user', 'post', 'created_at']
+    list_filter = ['created_at', 'user']
+    search_fields = ['user__username', 'post__title']
+    readonly_fields = ['created_at']
+    date_hierarchy = 'created_at'
+    ordering = ['-created_at']

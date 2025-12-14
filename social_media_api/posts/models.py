@@ -50,6 +50,10 @@ class Post(models.Model):
     def get_comments_count(self):
         """Return the number of comments on this post."""
         return self.comments.count()
+    
+    def get_likes_count(self):
+        """Return the number of likes on this post."""
+        return self.likes.count()
 
 
 class Comment(models.Model):
@@ -96,3 +100,46 @@ class Comment(models.Model):
     
     def __str__(self):
         return f"Comment by {self.author.username} on {self.post.title}"
+
+
+class Like(models.Model):
+    """
+    Like model for post interactions.
+    
+    Tracks which users have liked which posts.
+    Ensures a user can only like a post once (unique_together constraint).
+    
+    Fields:
+    - user: The user who liked the post
+    - post: The post being liked
+    - created_at: Timestamp when like was created
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='likes',
+        help_text="User who liked the post"
+    )
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='likes',
+        help_text="Post being liked"
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Timestamp when like was created"
+    )
+    
+    class Meta:
+        unique_together = ('user', 'post')
+        ordering = ['-created_at']
+        verbose_name = 'Like'
+        verbose_name_plural = 'Likes'
+        indexes = [
+            models.Index(fields=['post', '-created_at']),
+            models.Index(fields=['user']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.username} likes {self.post.title}"

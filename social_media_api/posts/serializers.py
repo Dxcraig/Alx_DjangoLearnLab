@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Post, Comment
+from .models import Post, Comment, Like
 
 User = get_user_model()
 
@@ -52,18 +52,32 @@ class PostSerializer(serializers.ModelSerializer):
     author_id = serializers.IntegerField(read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
     comments_count = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
+    is_liked_by_user = serializers.SerializerMethodField()
     
     class Meta:
         model = Post
         fields = [
             'id', 'author', 'author_id', 'title', 'content',
-            'created_at', 'updated_at', 'comments', 'comments_count'
+            'created_at', 'updated_at', 'comments', 'comments_count',
+            'likes_count', 'is_liked_by_user'
         ]
         read_only_fields = ['id', 'author', 'author_id', 'created_at', 'updated_at']
     
     def get_comments_count(self, obj):
         """Return the number of comments on this post."""
         return obj.get_comments_count()
+    
+    def get_likes_count(self, obj):
+        """Return the number of likes on this post."""
+        return obj.get_likes_count()
+    
+    def get_is_liked_by_user(self, obj):
+        """Check if the current user has liked this post."""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(user=request.user).exists()
+        return False
     
     def validate_title(self, value):
         """Validate post title."""
@@ -90,15 +104,29 @@ class PostListSerializer(serializers.ModelSerializer):
     """
     author = AuthorSerializer(read_only=True)
     comments_count = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
+    is_liked_by_user = serializers.SerializerMethodField()
     
     class Meta:
         model = Post
-        fields = ['id', 'author', 'title', 'content', 'created_at', 'updated_at', 'comments_count']
+        fields = ['id', 'author', 'title', 'content', 'created_at', 'updated_at', 
+                  'comments_count', 'likes_count', 'is_liked_by_user']
         read_only_fields = ['id', 'author', 'created_at', 'updated_at']
     
     def get_comments_count(self, obj):
         """Return the number of comments on this post."""
         return obj.get_comments_count()
+    
+    def get_likes_count(self, obj):
+        """Return the number of likes on this post."""
+        return obj.get_likes_count()
+    
+    def get_is_liked_by_user(self, obj):
+        """Check if the current user has liked this post."""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(user=request.user).exists()
+        return False
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
@@ -118,3 +146,17 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         if len(value) > 1000:
             raise serializers.ValidationError("Comment cannot exceed 1000 characters.")
         return value.strip()
+
+
+class LikeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Like model.
+    
+    Handles displaying like information.
+    """
+    user = AuthorSerializer(read_only=True)
+    
+    class Meta:
+        model = Like
+        fields = ['id', 'user', 'post', 'created_at']
+        read_only_fields = ['id', 'user', 'created_at']

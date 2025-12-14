@@ -3,12 +3,15 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
-from .models import Post, Comment
+from django.shortcuts import get_object_or_404
+from django.contrib.contenttypes.models import ContentType
+from .models import Post, Comment, Like
 from .serializers import (
     PostSerializer,
     PostListSerializer,
     CommentSerializer,
-    CommentCreateSerializer
+    CommentCreateSerializer,
+    LikeSerializer
 )
 
 
@@ -99,6 +102,61 @@ class PostViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def like(self, request, pk=None):
+        """
+        Like a post.
+        POST /api/posts/{id}/like/
+        """
+        post = self.get_object()
+        
+        # Check if user already liked the post
+        if Like.objects.filter(user=request.user, post=post).exists():
+            return Response({
+                'error': 'You have already liked this post'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create like
+        like = Like.objects.create(user=request.user, post=post)
+        
+        # Create notification for post author (if not liking own post)
+        if post.author != request.user:
+            from notifications.models import Notification
+            Notification.objects.create(
+                recipient=post.author,
+                actor=request.user,
+                verb='liked your post',
+                target_content_type=ContentType.objects.get_for_model(post),
+                target_object_id=post.id
+            )
+        
+        return Response({
+            'message': 'Post liked successfully',
+            'likes_count': post.get_likes_count()
+        }, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def unlike(self, request, pk=None):
+        """
+        Unlike a post.
+        POST /api/posts/{id}/unlike/
+        """
+        post = self.get_object()
+        
+        # Check if user has liked the post
+        try:
+            like = Like.objects.get(user=request.user, post=post)
+            like.delete()
+            
+            return Response({
+                'message': 'Post unliked successfully',
+                'likes_count': post.get_likes_count()
+            }, status=status.HTTP_200_OK)
+        except Like.DoesNotExist:
+            return Response({
+                'error': 'You have not liked this post'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -136,8 +194,20 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """
         Set the comment author to the current user when creating a comment.
+        Create notification for post author.
         """
-        serializer.save(author=self.request.user)
+        comment = serializer.save(author=self.request.user)
+        
+        # Create notification for post author (if not commenting on own post)
+        if comment.post.author != self.request.user:
+            from notifications.models import Notification
+            Notification.objects.create(
+                recipient=comment.post.author,
+                actor=self.request.user,
+                verb='commented on your post',
+                target_content_type=ContentType.objects.get_for_model(comment.post),
+                target_object_id=comment.post.id
+            )
     
     def get_queryset(self):
         """
