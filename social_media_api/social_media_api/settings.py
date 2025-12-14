@@ -24,8 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-d&ny+w%0!n&_as-0t)uilhy&-c0a+8w(a!(tfz)thl+4p534t*')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# For production, set DEBUG = False in your environment or use the line below:
+# DEBUG = False
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
+# Configure allowed hosts for production
+# Example: ALLOWED_HOSTS = ['yourdomain.com', 'www.yourdomain.com']
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
