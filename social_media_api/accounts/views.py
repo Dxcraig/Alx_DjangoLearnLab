@@ -205,10 +205,11 @@ class FollowUserView(generics.GenericAPIView):
     """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserFollowSerializer
+    queryset = User.objects.all()
     
     def post(self, request, user_id):
-        # Get the user to follow
-        user_to_follow = get_object_or_404(User, id=user_id)
+        # Get the user to follow from all users
+        user_to_follow = get_object_or_404(self.queryset, id=user_id)
         
         # Check if trying to follow themselves
         if user_to_follow == request.user:
@@ -246,10 +247,11 @@ class UnfollowUserView(generics.GenericAPIView):
     }
     """
     permission_classes = [permissions.IsAuthenticated]
+    queryset = User.objects.all()
     
     def post(self, request, user_id):
-        # Get the user to unfollow
-        user_to_unfollow = get_object_or_404(User, id=user_id)
+        # Get the user to unfollow from all users
+        user_to_unfollow = get_object_or_404(self.queryset, id=user_id)
         
         # Check if actually following this user
         if not request.user.following.filter(id=user_id).exists():
