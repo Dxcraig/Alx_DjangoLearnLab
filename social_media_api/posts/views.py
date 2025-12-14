@@ -109,16 +109,16 @@ class PostViewSet(viewsets.ModelViewSet):
         Like a post.
         POST /api/posts/{id}/like/
         """
-        post = self.get_object()
+        # Get the post using generics.get_object_or_404
+        post = generics.get_object_or_404(Post, pk=pk)
         
-        # Check if user already liked the post
-        if Like.objects.filter(user=request.user, post=post).exists():
+        # Use get_or_create to handle like creation
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        
+        if not created:
             return Response({
                 'error': 'You have already liked this post'
             }, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Create like
-        like = Like.objects.create(user=request.user, post=post)
         
         # Create notification for post author (if not liking own post)
         if post.author != request.user:
@@ -142,7 +142,8 @@ class PostViewSet(viewsets.ModelViewSet):
         Unlike a post.
         POST /api/posts/{id}/unlike/
         """
-        post = self.get_object()
+        # Get the post using generics.get_object_or_404
+        post = generics.get_object_or_404(Post, pk=pk)
         
         # Check if user has liked the post
         try:
